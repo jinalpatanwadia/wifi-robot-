@@ -1,0 +1,162 @@
+#define ENA   14         
+#define ENB   12          
+#define IN_1  15          
+#define IN_2  13          
+#define IN_3  2           
+#define IN_4  0           
+
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h> 
+#include <ESP8266WebServer.h>
+
+String command;             
+Int speedCar = 800;         
+Int speed_Coeff = 3;
+
+Const char* ssid = “Harish Projects wifi car”;
+ESP8266WebServer server(80);
+
+Void setup() {
+ pinMode(ENA, OUTPUT);
+ pinMode(ENB, OUTPUT);  
+ pinMode(IN_1, OUTPUT);
+ pinMode(IN_2, OUTPUT);
+ pinMode(IN_3, OUTPUT);
+ pinMode(IN_4, OUTPUT); 
+  
+
+  Serial.begin(115200);
+// Connecting WiFi
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid);
+
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print(“AP IP address: “);
+  Serial.println(myIP);
+ 
+ // Starting WEB-server 
+     Server.on ( “/”, HTTP_handleRoot );
+     Server.onNotFound ( HTTP_handleRoot );
+     Server.begin();    
+}
+Void goAhead(){ 
+      digitalWrite(IN_1, LOW);
+      digitalWrite(IN_2, HIGH);
+      analogWrite(ENA, speedCar);
+
+      digitalWrite(IN_3, LOW);
+      digitalWrite(IN_4, HIGH);
+      analogWrite(ENB, speedCar);
+  }
+
+Void goBack(){ 
+      digitalWrite(IN_1, HIGH);
+      digitalWrite(IN_2, LOW);
+      analogWrite(ENA, speedCar);
+
+      digitalWrite(IN_3, HIGH);
+      digitalWrite(IN_4, LOW);
+      analogWrite(ENB, speedCar);
+  }
+Void goRight(){ 
+      digitalWrite(IN_1, HIGH);
+      digitalWrite(IN_2, LOW);
+      analogWrite(ENA, speedCar);
+
+      digitalWrite(IN_3, LOW);
+      digitalWrite(IN_4, HIGH);
+      analogWrite(ENB, speedCar);
+  }
+Void goLeft(){
+      digitalWrite(IN_1, LOW);
+      digitalWrite(IN_2, HIGH);
+      analogWrite(ENA, speedCar);
+
+      digitalWrite(IN_3, HIGH);
+      digitalWrite(IN_4, LOW);
+      analogWrite(ENB, speedCar);
+  }
+Void goAheadRight(){
+      
+      digitalWrite(IN_1, LOW);
+      digitalWrite(IN_2, HIGH);
+      analogWrite(ENA, speedCar/speed_Coeff);
+ 
+     
+ digitalWrite(IN_3, LOW);
+      digitalWrite(IN_4, HIGH);
+      analogWrite(ENB, speedCar);
+   }
+Void goAheadLeft(){
+      
+      digitalWrite(IN_1, LOW);
+      digitalWrite(IN_2, HIGH);
+      analogWrite(ENA, speedCar);
+
+      digitalWrite(IN_3, LOW);
+      digitalWrite(IN_4, HIGH);
+      analogWrite(ENB, speedCar/speed_Coeff);
+  }
+Void goBackRight(){ 
+      digitalWrite(IN_1, HIGH);
+      digitalWrite(IN_2, LOW);
+      analogWrite(ENA, speedCar/speed_Coeff);
+
+      digitalWrite(IN_3, HIGH);
+      digitalWrite(IN_4, LOW);
+      analogWrite(ENB, speedCar);
+  }
+Void goBackLeft(){ 
+
+      digitalWrite(IN_1, HIGH);
+      digitalWrite(IN_2, LOW);
+      analogWrite(ENA, speedCar);
+
+      digitalWrite(IN_3, HIGH);
+      digitalWrite(IN_4, LOW);
+      analogWrite(ENB, speedCar/speed_Coeff);
+  }
+Void stopRobot(){  
+
+      digitalWrite(IN_1, LOW);
+      digitalWrite(IN_2, LOW);
+      analogWrite(ENA, speedCar);
+
+      digitalWrite(IN_3, LOW);
+      digitalWrite(IN_4, LOW);
+      analogWrite(ENB, speedCar);
+ }
+
+Void loop() {
+    Server.handleClient();
+    
+      Command = server.arg(“State”);
+      If (command == “F”) goAhead();
+      Else if (command == “B”) goBack();
+      Else if (command == “L”) goLeft();
+      Else if (command == “R”) goRight();
+      Else if (command == “I”) goAheadRight();
+      Else if (command == “G”) goAheadLeft();
+      Else if (command == “J”) goBackRight();
+      Else if (command == “H”) goBackLeft();
+      Else if (command == “0”) speedCar = 400;
+      Else if (command == “1”) speedCar = 470;
+      Else if (command == “2”) speedCar = 540;
+      Else if (command == “3”) speedCar = 610;
+      Else if (command == “4”) speedCar = 680;
+      Else if (command == “5”) speedCar = 750;
+      Else if (command == “6”) speedCar = 820;
+      Else if (command == “7”) speedCar = 890;
+      Else if (command == “8”) speedCar = 960;
+      Else if (command == “9”) speedCar = 1023;
+      Else if (command == “S”) stopRobot();
+}
+
+Void HTTP_handleRoot(void) {
+
+If( server.hasArg(“State”) ){
+       Serial.println(server.arg(“State”));
+  }
+  Server.send ( 200, “text/html”, “” );
+  Delay(1);
+}
